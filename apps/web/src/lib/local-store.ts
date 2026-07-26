@@ -12,6 +12,7 @@ import {
   type UserProfile,
   type UserSettings,
 } from "@taskflow/shared";
+import { canUseLocalStore } from "@/lib/runtime";
 import type { DbTask } from "@/services/tasks";
 
 type Store = {
@@ -24,6 +25,9 @@ type Store = {
 const storePath = path.join(process.cwd(), ".data", "taskflow-store.json");
 
 async function readStore(): Promise<Store> {
+  if (!canUseLocalStore()) {
+    return { profiles: [], tasks: [], categories: [], settings: [] };
+  }
   try {
     const raw = await fs.readFile(storePath, "utf8");
     const parsed = JSON.parse(raw) as Partial<Store>;
@@ -39,6 +43,9 @@ async function readStore(): Promise<Store> {
 }
 
 async function writeStore(store: Store) {
+  if (!canUseLocalStore()) {
+    throw new Error("Local data store is unavailable in this environment. Configure Supabase.");
+  }
   await fs.mkdir(path.dirname(storePath), { recursive: true });
   await fs.writeFile(storePath, JSON.stringify(store, null, 2), "utf8");
 }

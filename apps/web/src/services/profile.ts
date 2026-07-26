@@ -1,5 +1,6 @@
 import type { UserProfile } from "@taskflow/shared";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { canUseLocalStore } from "@/lib/runtime";
 import { localGetProfile, localUpsertProfile } from "@/lib/local-store";
 
 export type DbProfile = {
@@ -59,6 +60,7 @@ export async function getProfileByUserId(userId: string): Promise<DbProfile | nu
     console.error("[profile] supabase get failed", e);
   }
 
+  if (!canUseLocalStore()) return null;
   const local = await localGetProfile(userId);
   return local ? fromUserProfile(local) : null;
 }
@@ -90,8 +92,14 @@ export async function createProfile(data: {
       return mapProfile(row as Record<string, unknown>);
     }
     console.error("[profile] supabase upsert failed", error?.message);
+    if (!canUseLocalStore()) {
+      throw new Error(error?.message ?? "Failed to create profile");
+    }
   } catch (e) {
     console.error("[profile] supabase upsert exception", e);
+    if (!canUseLocalStore()) {
+      throw e instanceof Error ? e : new Error("Failed to create profile");
+    }
   }
 
   return fromUserProfile(await localUpsertProfile(data));

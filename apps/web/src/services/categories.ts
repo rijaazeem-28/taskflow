@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { canUseLocalStore } from "@/lib/runtime";
 import {
   localCreateCategory,
   localDeleteCategory,
@@ -50,8 +51,10 @@ export async function listCategories(userId: string): Promise<Category[]> {
     }
   } catch (e) {
     console.error("[categories] list failed", e);
+    if (!canUseLocalStore()) throw e;
   }
 
+  if (!canUseLocalStore()) return [];
   await localEnsureCategories(userId);
   return localListCategories(userId);
 }
@@ -72,8 +75,10 @@ export async function createCategory(userId: string, data: CategoryInput) {
       .select("*")
       .single();
     if (!error && row) return mapCategory(row as Record<string, unknown>);
+    if (error && !canUseLocalStore()) throw new Error(error.message);
   } catch (e) {
     console.error("[categories] create failed", e);
+    if (!canUseLocalStore()) throw e;
   }
   return localCreateCategory(userId, data);
 }
@@ -93,8 +98,10 @@ export async function updateCategory(userId: string, data: UpdateCategoryInput) 
       .select("*")
       .single();
     if (!error && row) return mapCategory(row as Record<string, unknown>);
+    if (error && !canUseLocalStore()) throw new Error(error.message);
   } catch (e) {
     console.error("[categories] update failed", e);
+    if (!canUseLocalStore()) throw e;
   }
   return localUpdateCategory(userId, data);
 }
@@ -104,11 +111,16 @@ export async function deleteCategory(id: string, userId: string) {
     const admin = createAdminClient();
     const { error } = await admin.from("categories").delete().eq("id", id).eq("user_id", userId);
     if (!error) {
-      const local = await localDeleteCategory(id, userId);
-      return local ?? ({ id } as Category);
+      if (canUseLocalStore()) {
+        const local = await localDeleteCategory(id, userId);
+        return local ?? ({ id } as Category);
+      }
+      return { id } as Category;
     }
+    if (error && !canUseLocalStore()) throw new Error(error.message);
   } catch (e) {
     console.error("[categories] delete failed", e);
+    if (!canUseLocalStore()) throw e;
   }
   return localDeleteCategory(id, userId);
 }

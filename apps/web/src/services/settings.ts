@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { canUseLocalStore } from "@/lib/runtime";
 import { localGetSettings, localUpdateSettings } from "@/lib/local-store";
 import type { SettingsInput, UserSettings } from "@taskflow/shared";
 
@@ -42,6 +43,19 @@ export async function getSettings(userId: string): Promise<UserSettings> {
     }
   } catch (e) {
     console.error("[settings] get failed", e);
+    if (!canUseLocalStore()) throw e;
+  }
+  if (!canUseLocalStore()) {
+    return {
+      id: "default",
+      userId,
+      theme: "system",
+      emailNotifications: true,
+      pushNotifications: true,
+      weeklyDigest: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
   }
   return localGetSettings(userId);
 }
@@ -67,6 +81,7 @@ export async function updateSettings(userId: string, data: SettingsInput): Promi
     if (!error && row) return mapSettings(row as Record<string, unknown>);
   } catch (e) {
     console.error("[settings] update failed", e);
+    if (!canUseLocalStore()) throw e;
   }
   return localUpdateSettings(userId, data);
 }

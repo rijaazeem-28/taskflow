@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS public.tasks (
   id text PRIMARY KEY DEFAULT gen_random_uuid()::text,
   title text NOT NULL,
   description text,
-  priority text NOT NULL DEFAULT 'MEDIUM' CHECK (priority IN ('LOW', 'MEDIUM', 'HIGH')),
+  priority text NOT NULL DEFAULT 'MEDIUM' CHECK (priority IN ('LOW', 'MEDIUM', 'HIGH', 'URGENT')),
   status text NOT NULL DEFAULT 'TODO' CHECK (status IN ('TODO', 'IN_PROGRESS', 'COMPLETED', 'ON_HOLD', 'CANCELLED')),
   due_date timestamptz,
   category text,
