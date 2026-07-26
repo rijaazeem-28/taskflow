@@ -10,6 +10,8 @@ export const GUEST_PROFILE = {
   email: "guest@taskflow.local",
   avatarUrl: null as string | null,
   role: "Member",
+  bio: "",
+  timezone: "UTC",
   createdAt: "2026-01-01T00:00:00.000Z",
   updatedAt: "2026-01-01T00:00:00.000Z",
 };

@@ -22,15 +22,49 @@ function profileFromAuth(user: {
     email: user.email ?? "",
     avatarUrl: (user.user_metadata?.avatar_url as string | undefined) ?? null,
     role: "Product Designer",
+    bio: "",
+    timezone: "UTC",
     createdAt: now,
     updatedAt: now,
+  };
+}
+
+function toUserProfile(profile: {
+  id: string;
+  userId: string;
+  fullName: string;
+  email: string;
+  avatarUrl?: string | null;
+  role?: string | null;
+  bio?: string | null;
+  timezone?: string | null;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+}): UserProfile {
+  return {
+    id: profile.id,
+    userId: profile.userId,
+    fullName: profile.fullName,
+    email: profile.email,
+    avatarUrl: profile.avatarUrl ?? null,
+    role: profile.role ?? "Product Designer",
+    bio: profile.bio ?? "",
+    timezone: profile.timezone ?? "UTC",
+    createdAt:
+      typeof profile.createdAt === "string"
+        ? profile.createdAt
+        : new Date(profile.createdAt).toISOString(),
+    updatedAt:
+      typeof profile.updatedAt === "string"
+        ? profile.updatedAt
+        : new Date(profile.updatedAt).toISOString(),
   };
 }
 
 function guestContext() {
   return {
     user: { id: GUEST_USER_ID, email: GUEST_PROFILE.email },
-    profile: { ...GUEST_PROFILE } satisfies UserProfile,
+    profile: toUserProfile(GUEST_PROFILE),
   };
 }
 
@@ -63,22 +97,7 @@ export async function getCurrentUserContext() {
 
     return {
       user,
-      profile: {
-        id: profile.id,
-        userId: profile.userId,
-        fullName: profile.fullName,
-        email: profile.email,
-        avatarUrl: profile.avatarUrl,
-        role: profile.role,
-        createdAt:
-          typeof profile.createdAt === "string"
-            ? profile.createdAt
-            : new Date(profile.createdAt).toISOString(),
-        updatedAt:
-          typeof profile.updatedAt === "string"
-            ? profile.updatedAt
-            : new Date(profile.updatedAt).toISOString(),
-      } satisfies UserProfile,
+      profile: toUserProfile(profile),
     };
   } catch (error) {
     console.error("[auth-user] falling back to auth metadata", error);

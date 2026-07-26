@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import type { UserProfile } from "@taskflow/shared";
 import { getCurrentUserContext } from "@/lib/auth-user";
 import { getProfileByUserId } from "@/services/profile";
 import { localGetProfile } from "@/lib/local-store";
@@ -15,7 +16,20 @@ export default async function ProfilePage() {
 
   const remote = await getProfileByUserId(ctx.user.id);
   const local = await localGetProfile(ctx.user.id);
-  const profile = local ?? (remote ? serializeProfile(remote) : ctx.profile);
+  const source = local ?? (remote ? serializeProfile(remote) : ctx.profile);
+
+  const profile: UserProfile = {
+    id: source.id,
+    userId: source.userId,
+    fullName: source.fullName,
+    email: source.email,
+    avatarUrl: source.avatarUrl ?? null,
+    role: source.role ?? "Product Designer",
+    bio: ("bio" in source ? source.bio : null) ?? "",
+    timezone: ("timezone" in source ? source.timezone : null) ?? "UTC",
+    createdAt: source.createdAt,
+    updatedAt: source.updatedAt,
+  };
 
   return (
     <ProfileShell
@@ -24,11 +38,7 @@ export default async function ProfilePage() {
         role: ctx.profile.role,
         avatarUrl: ctx.profile.avatarUrl,
       }}
-      profile={{
-        ...profile,
-        bio: profile.bio ?? "",
-        timezone: profile.timezone ?? "UTC",
-      }}
+      profile={profile}
     />
   );
 }
