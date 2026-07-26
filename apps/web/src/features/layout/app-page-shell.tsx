@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 type Props = {
   user: {
     fullName: string;
+    bio?: string | null;
     role?: string | null;
     avatarUrl?: string | null;
   };

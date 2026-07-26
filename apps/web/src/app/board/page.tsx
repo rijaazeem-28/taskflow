@@ -20,7 +20,7 @@ export default async function BoardPage() {
     <KanbanBoard
       user={{
         fullName: ctx.profile.fullName,
-        role: ctx.profile.role,
+        bio: ctx.profile.bio ?? "",
         avatarUrl: ctx.profile.avatarUrl,
       }}
       tasks={tasks.map(serializeTask)}

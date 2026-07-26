@@ -76,17 +76,9 @@ export async function updateProfileAction(input: unknown) {
       }).catch(() => undefined);
     }
 
-    const { logActivity } = await import("@/lib/activity-store");
-    await logActivity(user.id, {
-      type: "profile_updated",
-      title: "Profile updated",
-      description: "Your profile details were saved",
-    }).catch(() => undefined);
-
     revalidatePath("/profile");
     revalidatePath("/settings");
     revalidatePath("/dashboard");
-    revalidatePath("/activity");
     return { success: true as const, profile: saved };
   } catch (e) {
     return { success: false as const, error: e instanceof Error ? e.message : "Failed" };

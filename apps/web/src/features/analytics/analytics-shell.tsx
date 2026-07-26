@@ -42,7 +42,8 @@ const AnalyticsCharts = dynamic(
 );
 
 type Props = {
-  user: { fullName: string; role?: string | null; avatarUrl?: string | null };
+  user: { fullName: string; bio?: string | null;
+    role?: string | null; avatarUrl?: string | null };
   tasks: Task[];
 };
 

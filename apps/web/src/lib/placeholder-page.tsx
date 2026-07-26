@@ -16,7 +16,7 @@ export async function PlaceholderPage({
     <AppPageShell
       user={{
         fullName: ctx.profile.fullName,
-        role: ctx.profile.role,
+        bio: ctx.profile.bio ?? "",
         avatarUrl: ctx.profile.avatarUrl,
       }}
       title={title}

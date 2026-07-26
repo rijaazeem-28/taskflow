@@ -15,7 +15,7 @@ export default async function WhiteboardPage() {
       user={{
         id: ctx.user.id,
         fullName: ctx.profile.fullName,
-        role: ctx.profile.role,
+        bio: ctx.profile.bio ?? "",
         avatarUrl: ctx.profile.avatarUrl,
       }}
     />

@@ -18,7 +18,7 @@ export default async function AnalyticsPage() {
     <AnalyticsShell
       user={{
         fullName: ctx.profile.fullName,
-        role: ctx.profile.role,
+        bio: ctx.profile.bio ?? "",
         avatarUrl: ctx.profile.avatarUrl,
       }}
       tasks={tasks.map(serializeTask)}

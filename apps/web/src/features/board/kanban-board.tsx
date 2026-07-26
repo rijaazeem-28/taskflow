@@ -86,7 +86,8 @@ export function KanbanBoard({
   tasks,
   categories,
 }: {
-  user: { fullName: string; role?: string | null; avatarUrl?: string | null };
+  user: { fullName: string; bio?: string | null;
+    role?: string | null; avatarUrl?: string | null };
   tasks: Task[];
   categories: Category[];
 }) {

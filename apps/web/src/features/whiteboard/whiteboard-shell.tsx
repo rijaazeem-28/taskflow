@@ -16,6 +16,7 @@ type Props = {
   user: {
     id: string;
     fullName: string;
+    bio?: string | null;
     role?: string | null;
     avatarUrl?: string | null;
   };

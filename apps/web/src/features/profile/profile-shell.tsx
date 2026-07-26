@@ -21,7 +21,8 @@ export function ProfileShell({
   user,
   profile,
 }: {
-  user: { fullName: string; role?: string | null; avatarUrl?: string | null };
+  user: { fullName: string; bio?: string | null;
+    role?: string | null; avatarUrl?: string | null };
   profile: UserProfile;
 }) {
   const router = useRouter();

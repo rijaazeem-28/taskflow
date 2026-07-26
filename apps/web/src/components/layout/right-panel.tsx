@@ -7,7 +7,6 @@ import {
   ChevronRight,
   Pencil,
   Plus,
-  Users,
 } from "lucide-react";
 import { type ActivityItem, type Task } from "@taskflow/shared";
 import { cn } from "@/lib/utils";
@@ -128,44 +127,48 @@ const activityIcon = {
   completed: Check,
   updated: Pencil,
   created: Plus,
-  joined: Users,
 } as const;
 
 const activityColor = {
   completed: "bg-emerald-100 text-emerald-600",
   updated: "bg-amber-100 text-amber-600",
   created: "bg-indigo-100 text-indigo-600",
-  joined: "bg-pink-100 text-pink-600",
 } as const;
 
 function ActivityFeed({ items }: { items: ActivityItem[] }) {
+  const taskItems = items.filter((item) => item.type !== "joined");
+
   return (
     <Card>
       <CardHeader className="p-4 pb-2">
         <CardTitle className="text-sm font-semibold">Activity Feed</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3.5 p-4 pt-2">
-        {items.map((item) => {
-          const Icon = activityIcon[item.type];
-          return (
-            <div key={item.id} className="flex gap-3">
-              <span
-                className={cn(
-                  "mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
-                  activityColor[item.type]
-                )}
-              >
-                <Icon className="h-3.5 w-3.5" />
-              </span>
-              <div className="min-w-0">
-                <p className="text-sm font-medium text-slate-800">{item.title}</p>
-                <p className="text-xs text-slate-400">
-                  <RelativeTime date={item.createdAt} />
-                </p>
+        {taskItems.length === 0 ? (
+          <p className="text-sm text-slate-400">No task activity yet.</p>
+        ) : (
+          taskItems.map((item) => {
+            const Icon = activityIcon[item.type as keyof typeof activityIcon] ?? Pencil;
+            return (
+              <div key={item.id} className="flex gap-3">
+                <span
+                  className={cn(
+                    "mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
+                    activityColor[item.type as keyof typeof activityColor] ?? activityColor.updated
+                  )}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-slate-800">{item.title}</p>
+                  <p className="text-xs text-slate-400">
+                    <RelativeTime date={item.createdAt} />
+                  </p>
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </CardContent>
     </Card>
   );

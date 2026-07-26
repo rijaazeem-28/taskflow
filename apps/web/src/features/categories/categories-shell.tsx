@@ -23,7 +23,8 @@ export function CategoriesShell({
   categories,
   tasks,
 }: {
-  user: { fullName: string; role?: string | null; avatarUrl?: string | null };
+  user: { fullName: string; bio?: string | null;
+    role?: string | null; avatarUrl?: string | null };
   categories: Category[];
   tasks: Task[];
 }) {

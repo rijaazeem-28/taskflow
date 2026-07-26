@@ -44,6 +44,7 @@ type SidebarProps = {
   onQuickAdd: () => void;
   user: {
     fullName: string;
+    bio?: string | null;
     role?: string | null;
     avatarUrl?: string | null;
   };
@@ -133,7 +134,9 @@ export function Sidebar({ open, onClose, onQuickAdd, user }: SidebarProps) {
             </Avatar>
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-semibold">{user.fullName}</p>
-              <p className="truncate text-xs text-white/60">{user.role ?? "Product Designer"}</p>
+              <p className="truncate text-xs text-white/60">
+                {user.bio?.trim() || "No bio yet"}
+              </p>
             </div>
             <ChevronDown className="h-4 w-4 text-white/50" />
           </div>

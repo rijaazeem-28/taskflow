@@ -20,7 +20,8 @@ export function SettingsShell({
   user,
   settings,
 }: {
-  user: { fullName: string; role?: string | null; avatarUrl?: string | null };
+  user: { fullName: string; bio?: string | null;
+    role?: string | null; avatarUrl?: string | null };
   settings: UserSettings;
 }) {
   const router = useRouter();

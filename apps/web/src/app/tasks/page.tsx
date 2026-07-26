@@ -26,7 +26,7 @@ export default async function TasksPage() {
       user={{
         id: ctx.user.id,
         fullName: ctx.profile.fullName,
-        role: ctx.profile.role,
+        bio: ctx.profile.bio ?? "",
         avatarUrl: ctx.profile.avatarUrl,
       }}
       tasks={tasks.map(serializeTask)}

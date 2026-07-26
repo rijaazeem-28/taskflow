@@ -20,7 +20,7 @@ export default async function CategoriesPage() {
     <CategoriesShell
       user={{
         fullName: ctx.profile.fullName,
-        role: ctx.profile.role,
+        bio: ctx.profile.bio ?? "",
         avatarUrl: ctx.profile.avatarUrl,
       }}
       categories={categories}

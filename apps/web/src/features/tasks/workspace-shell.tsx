@@ -36,7 +36,8 @@ import {
 import { TaskFormDialog } from "@/features/tasks/task-form-dialog";
 
 type Props = {
-  user: { id: string; fullName: string; role?: string | null; avatarUrl?: string | null };
+  user: { id: string; fullName: string; bio?: string | null;
+    role?: string | null; avatarUrl?: string | null };
   tasks: Task[];
   categories: Category[];
 };

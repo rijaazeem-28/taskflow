@@ -74,9 +74,18 @@ function deriveFromTasks(
   return events;
 }
 
+const TASK_ACTIVITY_TYPES = new Set<ActivityType>([
+  "task_created",
+  "task_updated",
+  "task_deleted",
+  "status_changed",
+  "category_changed",
+  "reminder_added",
+]);
+
 export async function getActivityAction() {
   const userId = await requireUserId();
-  const stored = await listActivity(userId);
+  const stored = (await listActivity(userId)).filter((e) => TASK_ACTIVITY_TYPES.has(e.type));
   if (stored.length > 0) {
     return { events: stored, groups: groupActivity(stored) };
   }

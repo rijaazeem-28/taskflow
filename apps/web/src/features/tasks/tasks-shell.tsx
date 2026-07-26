@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 type Props = {
   user: {
     fullName: string;
+    bio?: string | null;
     role?: string | null;
     avatarUrl?: string | null;
   };

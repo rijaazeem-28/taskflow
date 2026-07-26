@@ -17,7 +17,7 @@ export default async function ActivityPage() {
     <ActivityShell
       user={{
         fullName: ctx.profile.fullName,
-        role: ctx.profile.role,
+        bio: ctx.profile.bio ?? "",
         avatarUrl: ctx.profile.avatarUrl,
       }}
       events={events}

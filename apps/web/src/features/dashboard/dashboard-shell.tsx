@@ -20,6 +20,7 @@ type Props = {
   user: {
     id: string;
     fullName: string;
+    bio?: string | null;
     role?: string | null;
     avatarUrl?: string | null;
   };
@@ -33,7 +34,7 @@ function buildActivities(tasks: Task[]): ActivityItem[] {
     (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
   );
 
-  const fromTasks: ActivityItem[] = sorted.slice(0, 3).map((t): ActivityItem => {
+  return sorted.slice(0, 4).map((t): ActivityItem => {
     if (t.status === "COMPLETED") {
       return {
         id: `a-${t.id}`,
@@ -60,17 +61,6 @@ function buildActivities(tasks: Task[]): ActivityItem[] {
       createdAt: t.updatedAt,
     };
   });
-
-  const joined: ActivityItem = {
-    id: "joined",
-    type: "joined",
-    title: "Joined Design Team",
-    description: "",
-    // Fixed timestamp so SSR/client activity lists stay stable
-    createdAt: "2026-07-23T12:00:00.000Z",
-  };
-
-  return [...fromTasks, joined].slice(0, 4);
 }
 
 export function DashboardShell({ user, tasks, categories = [], firstName }: Props) {
