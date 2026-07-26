@@ -66,7 +66,7 @@ export async function GET() {
   }
 
   const activity = await listActivity(user.id).catch(() => []);
-  for (const event of activity.slice(0, 8)) {
+  for (const event of activity.filter((e) => e.type !== "profile_updated").slice(0, 8)) {
     notifications.push({
       id: `activity-${event.id}`,
       type: "activity",
