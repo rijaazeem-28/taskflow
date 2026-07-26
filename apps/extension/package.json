@@ -1,0 +1,10 @@
+{
+  "name": "@taskflow/extension",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TaskFlow Chrome extension — quick capture & recent tasks",
+  "scripts": {
+    "dev": "echo \"Load unpacked in Chrome: chrome://extensions → Developer mode → Load unpacked → apps/extension\"",
+    "build": "echo \"Static MV3 extension — no build step required\""
+  }
+}

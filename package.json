@@ -1,0 +1,26 @@
+{
+  "name": "taskflow",
+  "version": "1.0.0",
+  "private": true,
+  "description": "TaskFlow — multi-platform SaaS task management (web, extension, mobile, desktop)",
+  "workspaces": [
+    "apps/web",
+    "apps/extension",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w @taskflow/web",
+    "build": "npm run build -w @taskflow/web",
+    "lint": "npm run lint -w @taskflow/web",
+    "db:generate": "npm run db:generate -w @taskflow/web",
+    "db:push": "npm run db:push -w @taskflow/web",
+    "db:studio": "npm run db:studio -w @taskflow/web",
+    "mobile:start": "npm --prefix apps/mobile start",
+    "mobile:android": "npm --prefix apps/mobile run android",
+    "desktop:dev": "npm --prefix apps/desktop run tauri:dev",
+    "desktop:build": "npm --prefix apps/desktop run tauri:build"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

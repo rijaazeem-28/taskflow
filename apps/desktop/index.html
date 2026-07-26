@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TaskFlow Desktop</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header class="header">
+        <div>
+          <h1>TaskFlow</h1>
+          <p>Minimal desktop companion (Tauri)</p>
+        </div>
+        <span id="stats" class="stats">0 open</span>
+      </header>
+
+      <form id="form" class="composer">
+        <input id="title" type="text" placeholder="Quick add a task…" maxlength="200" required />
+        <button type="submit">Add</button>
+      </form>
+
+      <ul id="list" class="list"></ul>
+
+      <footer class="footer">
+        <button type="button" id="open-web">Open full web app</button>
+      </footer>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

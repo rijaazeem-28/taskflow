@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TaskFlow Extension Options</title>
+    <link rel="stylesheet" href="popup.css" />
+    <style>
+      body {
+        width: auto;
+        max-width: 560px;
+        margin: 0 auto;
+      }
+      .shell {
+        padding: 28px 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <header class="header">
+        <div class="brand">
+          <span class="logo" aria-hidden="true">✓</span>
+          <div>
+            <h1>TaskFlow Options</h1>
+            <p>Connect the extension to your web app</p>
+          </div>
+        </div>
+      </header>
+
+      <form id="options-form" class="card">
+        <label for="baseUrl">TaskFlow app URL</label>
+        <input id="baseUrl" name="baseUrl" type="url" placeholder="http://localhost:3000" required />
+
+        <label for="token">Extension token</label>
+        <input
+          id="token"
+          name="token"
+          type="password"
+          autocomplete="off"
+          placeholder="tf_… from TaskFlow Settings"
+          required
+        />
+        <p class="muted">
+          In the web app: Settings → Chrome extension → Generate token → paste it here.
+        </p>
+
+        <div class="row" style="margin-top: 12px">
+          <button class="btn" type="submit">Save connection</button>
+          <button class="btn secondary" type="button" id="test-btn">Test</button>
+        </div>
+        <p id="options-status" class="status" role="status" style="margin-top: 10px"></p>
+      </form>
+    </div>
+    <script type="module" src="options.js"></script>
+  </body>
+</html>

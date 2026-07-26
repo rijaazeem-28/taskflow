@@ -1,0 +1,97 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Profile {
+  id         String        @id @default(cuid())
+  userId     String        @unique @map("user_id")
+  fullName   String        @map("full_name")
+  email      String        @unique
+  avatarUrl  String?       @map("avatar_url")
+  role       String?       @default("Product Designer")
+  bio        String?
+  timezone   String?       @default("UTC")
+  createdAt  DateTime      @default(now()) @map("created_at")
+  updatedAt  DateTime      @updatedAt @map("updated_at")
+  tasks      Task[]
+  categories Category[]
+  settings   UserSettings?
+
+  @@map("profiles")
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  name      String
+  color     String
+  icon      String
+  isDefault Boolean  @default(false) @map("is_default")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  profile   Profile  @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  tasks     Task[]
+
+  @@index([userId])
+  @@unique([userId, name])
+  @@map("categories")
+}
+
+model Task {
+  id             String       @id @default(cuid())
+  title          String
+  description    String?
+  priority       TaskPriority @default(MEDIUM)
+  status         TaskStatus   @default(TODO)
+  dueDate        DateTime?    @map("due_date")
+  category       String?
+  categoryId     String?      @map("category_id")
+  reminderOffset String       @default("NONE") @map("reminder_offset")
+  reminderAt     DateTime?    @map("reminder_at")
+  userId         String       @map("user_id")
+  profile        Profile      @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  categoryRef    Category?    @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  createdAt      DateTime     @default(now()) @map("created_at")
+  updatedAt      DateTime     @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@index([status])
+  @@index([priority])
+  @@index([dueDate])
+  @@map("tasks")
+}
+
+model UserSettings {
+  id                 String   @id @default(cuid())
+  userId             String   @unique @map("user_id")
+  theme              String   @default("system")
+  emailNotifications Boolean  @default(true) @map("email_notifications")
+  pushNotifications  Boolean  @default(true) @map("push_notifications")
+  weeklyDigest       Boolean  @default(false) @map("weekly_digest")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+  profile            Profile  @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@map("user_settings")
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  COMPLETED
+  ON_HOLD
+  CANCELLED
+}
