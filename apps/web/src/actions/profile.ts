@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { changePasswordSchema, profileUpdateSchema, settingsSchema } from "@taskflow/shared";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { canUseLocalStore } from "@/lib/runtime";
 import { createProfile, getProfileByUserId } from "@/services/profile";
 import { getSettings, updateSettings } from "@/services/settings";
 
@@ -21,30 +22,8 @@ export async function updateProfileAction(input: unknown) {
     const parsed = profileUpdateSchema.safeParse(input);
     if (!parsed.success) return { success: false as const, error: parsed.error.errors[0]?.message };
     const { user } = await requireUser();
-    const admin = createAdminClient();
-    const { error } = await admin
-      .from("profiles")
-      .upsert(
-        {
-          user_id: user.id,
-          full_name: parsed.data.fullName,
-          email: user.email ?? "",
-          bio: parsed.data.bio ?? "",
-          timezone: parsed.data.timezone ?? "UTC",
-          avatar_url: parsed.data.avatarUrl || null,
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: "user_id" }
-      );
-    await createProfile({
-      userId: user.id,
-      fullName: parsed.data.fullName,
-      email: user.email ?? "",
-      avatarUrl: parsed.data.avatarUrl || null,
-    });
-    // also patch local with bio/timezone via createProfile path - update local store fields
-    const { localUpsertProfile } = await import("@/lib/local-store");
-    await localUpsertProfile({
+
+    const saved = await createProfile({
       userId: user.id,
       fullName: parsed.data.fullName,
       email: user.email ?? "",
@@ -52,18 +31,63 @@ export async function updateProfileAction(input: unknown) {
       bio: parsed.data.bio ?? "",
       timezone: parsed.data.timezone ?? "UTC",
     });
-    if (error) console.warn("[profile] remote upsert", error.message);
+
+    // Ensure bio/timezone persisted when columns exist (createProfile may fall back to base columns).
+    try {
+      const admin = createAdminClient();
+      const { error } = await admin
+        .from("profiles")
+        .update({
+          bio: parsed.data.bio ?? "",
+          timezone: parsed.data.timezone ?? "UTC",
+          full_name: parsed.data.fullName,
+          avatar_url: parsed.data.avatarUrl || null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("user_id", user.id);
+      if (error && /bio|timezone|column/i.test(error.message)) {
+        return {
+          success: false as const,
+          error:
+            "Bio/timezone columns are missing. Run apps/web/supabase/schema-phase2.sql in the Supabase SQL Editor.",
+        };
+      }
+      if (error) {
+        return { success: false as const, error: error.message };
+      }
+    } catch (e) {
+      if (!canUseLocalStore()) {
+        return {
+          success: false as const,
+          error: e instanceof Error ? e.message : "Failed to save profile",
+        };
+      }
+    }
+
+    if (canUseLocalStore()) {
+      const { localUpsertProfile } = await import("@/lib/local-store");
+      await localUpsertProfile({
+        userId: user.id,
+        fullName: parsed.data.fullName,
+        email: user.email ?? "",
+        avatarUrl: parsed.data.avatarUrl || null,
+        bio: parsed.data.bio ?? "",
+        timezone: parsed.data.timezone ?? "UTC",
+      }).catch(() => undefined);
+    }
+
     const { logActivity } = await import("@/lib/activity-store");
     await logActivity(user.id, {
       type: "profile_updated",
       title: "Profile updated",
       description: "Your profile details were saved",
     }).catch(() => undefined);
+
     revalidatePath("/profile");
     revalidatePath("/settings");
     revalidatePath("/dashboard");
     revalidatePath("/activity");
-    return { success: true as const };
+    return { success: true as const, profile: saved };
   } catch (e) {
     return { success: false as const, error: e instanceof Error ? e.message : "Failed" };
   }

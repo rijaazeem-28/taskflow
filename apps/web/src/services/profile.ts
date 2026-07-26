@@ -16,6 +16,16 @@ export type DbProfile = {
   updatedAt: string;
 };
 
+export type ProfileWriteInput = {
+  userId: string;
+  fullName: string;
+  email: string;
+  avatarUrl?: string | null;
+  bio?: string | null;
+  timezone?: string | null;
+  role?: string | null;
+};
+
 function fromUserProfile(profile: UserProfile): DbProfile {
   return {
     id: profile.id,
@@ -38,9 +48,9 @@ function mapProfile(row: Record<string, unknown>): DbProfile {
     fullName: String(row.full_name ?? row.fullName),
     email: String(row.email),
     avatarUrl: ((row.avatar_url ?? row.avatarUrl) as string | null) ?? null,
-    role: ((row.role as string | null) ?? "Product Designer"),
-    bio: ((row.bio as string | null) ?? null),
-    timezone: ((row.timezone as string | null) ?? "UTC"),
+    role: (row.role as string | null) ?? "Product Designer",
+    bio: (row.bio as string | null) ?? null,
+    timezone: (row.timezone as string | null) ?? "UTC",
     createdAt: String(row.created_at ?? row.createdAt ?? new Date().toISOString()),
     updatedAt: String(row.updated_at ?? row.updatedAt ?? new Date().toISOString()),
   };
@@ -65,42 +75,61 @@ export async function getProfileByUserId(userId: string): Promise<DbProfile | nu
   return local ? fromUserProfile(local) : null;
 }
 
-export async function createProfile(data: {
-  userId: string;
-  fullName: string;
-  email: string;
-  avatarUrl?: string | null;
-}): Promise<DbProfile> {
-  const payload = {
+export async function createProfile(data: ProfileWriteInput): Promise<DbProfile> {
+  const base = {
     user_id: data.userId,
     full_name: data.fullName,
     email: data.email,
     avatar_url: data.avatarUrl ?? null,
-    role: "Product Designer",
+    role: data.role ?? "Product Designer",
     updated_at: new Date().toISOString(),
+  };
+
+  const full = {
+    ...base,
+    bio: data.bio ?? "",
+    timezone: data.timezone ?? "UTC",
   };
 
   try {
     const admin = createAdminClient();
-    const { data: row, error } = await admin
+    let { data: row, error } = await admin
       .from("profiles")
-      .upsert(payload, { onConflict: "user_id" })
+      .upsert(full, { onConflict: "user_id" })
       .select("*")
       .single();
+
+    if (error) {
+      ({ data: row, error } = await admin
+        .from("profiles")
+        .upsert(base, { onConflict: "user_id" })
+        .select("*")
+        .single());
+    }
 
     if (!error && row) {
       return mapProfile(row as Record<string, unknown>);
     }
     console.error("[profile] supabase upsert failed", error?.message);
     if (!canUseLocalStore()) {
-      throw new Error(error?.message ?? "Failed to create profile");
+      throw new Error(error?.message ?? "Failed to save profile");
     }
   } catch (e) {
     console.error("[profile] supabase upsert exception", e);
     if (!canUseLocalStore()) {
-      throw e instanceof Error ? e : new Error("Failed to create profile");
+      throw e instanceof Error ? e : new Error("Failed to save profile");
     }
   }
 
-  return fromUserProfile(await localUpsertProfile(data));
+  return fromUserProfile(
+    await localUpsertProfile({
+      userId: data.userId,
+      fullName: data.fullName,
+      email: data.email,
+      avatarUrl: data.avatarUrl,
+      bio: data.bio,
+      timezone: data.timezone,
+      role: data.role,
+    })
+  );
 }

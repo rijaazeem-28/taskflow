@@ -20,7 +20,7 @@ export function LoginForm() {
   const [pending, startTransition] = useTransition();
   const form = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: "", password: "", rememberMe: true },
+    defaultValues: { email: "", password: "", rememberMe: false },
   });
 
   const onSubmit = form.handleSubmit((values) => {
@@ -28,7 +28,7 @@ export function LoginForm() {
     const fd = new FormData();
     fd.set("email", values.email);
     fd.set("password", values.password);
-    if (values.rememberMe) fd.set("rememberMe", "true");
+    // Always session-only auth cookies (cleared when the browser closes).
 
     startTransition(async () => {
       const result = await loginAction(fd);
@@ -65,14 +65,9 @@ export function LoginForm() {
         ) : null}
       </div>
 
-      <label className="flex items-center gap-2 text-sm text-slate-600">
-        <input
-          type="checkbox"
-          className="h-4 w-4 rounded border-slate-300 text-indigo-600"
-          {...form.register("rememberMe")}
-        />
-        Remember me
-      </label>
+      <p className="text-xs text-slate-400">
+        You&apos;ll be signed out when you close the browser.
+      </p>
 
       {error ? (
         <div className="rounded-xl bg-rose-50 px-3 py-2 text-sm text-rose-600">{error}</div>

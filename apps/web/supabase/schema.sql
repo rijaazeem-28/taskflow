@@ -7,9 +7,14 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   email text NOT NULL UNIQUE,
   avatar_url text,
   role text DEFAULT 'Product Designer',
+  bio text,
+  timezone text DEFAULT 'UTC',
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()
 );
+
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS bio text;
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS timezone text DEFAULT 'UTC';
 
 CREATE TABLE IF NOT EXISTS public.tasks (
   id text PRIMARY KEY DEFAULT gen_random_uuid()::text,
